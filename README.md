@@ -1,7 +1,7 @@
 # ⚽ Sistema de Reserva de Campos de Futebol - Arena Futebol
 
 ## 👨‍💻 Autor
-* **Rafael Padilha** (Trabalho Individual)
+* **Rafael Rodrigues Padilha** (Trabalho Individual)
 * Disciplina: Tópicos Especiais (TSI36A) - UTFPR GP
 * Professor: Prof. Dr. Roni Fabio Banaszewski
 
