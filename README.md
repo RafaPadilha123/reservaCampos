@@ -25,8 +25,10 @@ O desenvolvimento foi realizado utilizando a metodologia de **Spec-Driven Develo
 * **Testes:** Jest (Testes unitários e de integração)
 
 ### Frontend (/apps/web)
-* **Tecnologia:** Angular
-* **Consumo de API:** Axios / Fetch API integrado ao Swagger da API
+* **Tecnologia:** Angular (v17+) com TypeScript
+* **Gerenciamento de Estado/Componentes:** Serviços nativos e RxJS (Programação Reativa)
+* **Estilização:** SCSS / Tailwind CSS
+* **Consumo de API:** HttpClient integrado aos DTOs gerados a partir do Swagger da API
 
 ---
 
