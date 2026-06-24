@@ -1,12 +1,15 @@
-import { Module } from '@nestjs/common'; // Corrigido aqui!
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
+import { AuthModule } from './auth/auth.module'; // Importa o submódulo
+import { CamposModule } from './campos/campos.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService],
+  imports: [
+    AuthModule, // Garante que tudo o que está dentro de AuthModule seja carregado junto
+    CamposModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService], // <-- REMOVA o AuthService e o PrismaService daqui se estiverem listados
 })
 export class AppModule {}
