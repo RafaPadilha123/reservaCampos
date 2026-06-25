@@ -1,0 +1,37 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-size: 18 # ou a versão do Node que você usa
+        cache: 'npm'
+        cache-dependency-path: apps/api/package-lock.json
+
+    - name: Instalar dependências da API
+      run: npm install
+      working-directory: apps/api
+
+    - name: Gerar o Prisma Client
+      run: npx prisma generate
+      working-directory: apps/api
+
+    - name: Executar Testes Automatizados
+      run: npm run test
+      working-directory: apps/api
+      env:
+       
+        DATABASE_URL: ${{ postgresql://neondb_owner:npg_R1tmdurF0UBw@ep-polished-leaf-acxx81of-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require }}
