@@ -1,12 +1,19 @@
-import { Module } from '@nestjs/common'; // Corrigido aqui!
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
+import { CamposModule } from './campos/campos.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { UsersModule } from './users/user.module';
+import { AuthModule } from './auth/auth.module';
+import { ReservasModule } from './reservas/reservas.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService],
+  imports: [
+    PrismaModule, 
+    CamposModule, 
+    UsersModule, AuthModule, ReservasModule 
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
