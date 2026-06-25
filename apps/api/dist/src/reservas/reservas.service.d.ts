@@ -7,18 +7,12 @@ export declare class ReservasService {
         campoId: number;
         dataHora: string;
     }): Promise<{
-        data_hora: Date;
         id: number;
+        data_hora: Date;
         campoId: number;
         userId: number;
     }>;
     findAll(): Promise<({
-        campo: {
-            id: number;
-            nome: string;
-            tipo_grama: string;
-            preco_hora: number;
-        };
         user: {
             id: number;
             name: string;
@@ -26,9 +20,15 @@ export declare class ReservasService {
             password: string;
             role: string;
         };
+        campo: {
+            nome: string;
+            tipo_grama: string;
+            preco_hora: number;
+            id: number;
+        };
     } & {
-        data_hora: Date;
         id: number;
+        data_hora: Date;
         campoId: number;
         userId: number;
     })[]>;
