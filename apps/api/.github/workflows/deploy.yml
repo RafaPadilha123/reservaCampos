@@ -17,7 +17,7 @@ jobs:
     - name: Configurar Node.js
       uses: actions/setup-node@v4
       with:
-        node-size: 18 # ou a versão do Node que você usa
+        node-size: 18
         cache: 'npm'
         cache-dependency-path: apps/api/package-lock.json
 
