@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const API_URL = 'http://localhost:3000'
+const API_URL = 'https://reservacampos.onrender.com'
 
 interface Campo {
   id: number
@@ -17,56 +17,65 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   
-  // Estados para o Gerenciamento de Campos
   const [campos, setCampos] = useState<Campo[]>([])
   const [loading, setLoading] = useState(false)
   const [novoNome, setNovoNome] = useState('')
   const [novoTipoGrama, setNovoTipoGrama] = useState('')
   const [novoPreco, setNovoPreco] = useState('')
 
-  // Estados para as Seleções de Data, Hora e Lista de Reservas
   const [dataSelecionada, setDataSelecionada] = useState('')
   const [horaSelecionada, setHoraSelecionada] = useState('08:00')
   const [reservas, setReservas] = useState<any[]>([])
 
-  // Auto-Login ao carregar a página
+  // --- 1. TRAVA DE SEGURANÇA CONTRA TELA BRANCA NO CARREGAMENTO ---
   useEffect(() => {
-  const token = localStorage.getItem('token')
-  const savedUser = localStorage.getItem('user')
-  
-  if (token && savedUser) {
-    const user = JSON.parse(savedUser)
+    const token = localStorage.getItem('token')
+    const savedUser = localStorage.getItem('user')
     
-    // 🌟 BUSCA ATUALIZADA: Puxa o usuário direto do backend para pegar a Role real!
-    axios.get(`${API_URL}/users`, {
-      headers: { Authorization: `Bearer ${token}` } // Se sua rota pedir token
-    })
-    .then(response => {
-      // Procura o seu usuário na lista que vem do backend
-      const usuarioAtualizado = response.data.find((u: any) => u.email === user.email)
-      if (usuarioAtualizado) {
-        // Atualiza o localStorage com os dados novinhos do banco (incluindo o role: "ADMIN")
-        localStorage.setItem('user', JSON.stringify(usuarioAtualizado))
-        setName(usuarioAtualizado.name)
-      } else {
-        setName(user.name)
+    if (token && savedUser && savedUser !== "undefined" && savedUser !== "null") {
+      try {
+        const user = JSON.parse(savedUser)
+        
+        axios.get(`${API_URL}/users`, {
+          headers: { Authorization: `Bearer ${token}` } 
+        })
+        .then(response => {
+          const dadosUsuarios = response.data?.data || response.data
+          if (Array.isArray(dadosUsuarios)) {
+            const usuarioAtualizado = dadosUsuarios.find((u: any) => u.email === user.email)
+            if (usuarioAtualizado) {
+              localStorage.setItem('user', JSON.stringify(usuarioAtualizado))
+              setName(usuarioAtualizado?.name || usuarioAtualizado?.email || 'Usuário')
+            } else {
+              setName(user?.name || user?.email || 'Usuário')
+            }
+          } else {
+            setName(user?.name || user?.email || 'Usuário')
+          }
+          setIsLoggedIn(true)
+        })
+        .catch(err => {
+          console.error("Erro ao sincronizar usuário:", err)
+          setName(user?.name || user?.email || 'Usuário')
+          setIsLoggedIn(true)
+        })
+      } catch (e) {
+        console.error("JSON corrompido detectado no LocalStorage. Limpando chaves...", e)
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
       }
-      setIsLoggedIn(true)
-    })
-    .catch(err => {
-      console.error("Erro ao sincronizar usuário:", err)
-      // Caso dê erro na rota de listagem, mantém o login básico para não travar
-      setName(user.name)
-      setIsLoggedIn(true)
-    })
-  }
-}, [])
+    } else if (savedUser === "undefined" || savedUser === "null") {
+      localStorage.removeItem('user')
+      localStorage.removeItem('token')
+    }
+  }, [])
 
   const buscarCampos = async () => {
     setLoading(true)
     try {
       const response = await axios.get(`${API_URL}/campos`)
-      setCampos(response.data)
+      const dadosCampos = response.data?.data || response.data
+      setCampos(Array.isArray(dadosCampos) ? dadosCampos : [])
     } catch (error) {
       console.error("Erro ao buscar campos:", error)
     } finally {
@@ -77,7 +86,8 @@ function App() {
   const buscarReservas = async () => {
     try {
       const response = await axios.get(`${API_URL}/reservas`)
-      setReservas(response.data)
+      const dadosReservas = response.data?.data || response.data
+      setReservas(Array.isArray(dadosReservas) ? dadosReservas : [])
     } catch (error) {
       console.error("Erro ao buscar reservas:", error)
     }
@@ -154,24 +164,36 @@ function App() {
     }
   }
 
-  // --- Fluxo de Login / Cadastro de Usuário ---
+  // --- 2. FLUXO DE LOGIN / CADASTRO DE USUÁRIO COM LEITURA FLEXÍVEL DE RETORNO ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       if (isLogin) {
         const response = await axios.post(`${API_URL}/auth/login`, { email, password })
-        const { access_token, user } = response.data
+        
+        // Desembrulha a resposta caso os dados venham dentro de uma chave 'data' ou direto na raiz
+        const dados = response.data?.data || response.data
+        const token = response.data?.access_token || response.data?.token || dados?.access_token
 
-        localStorage.setItem('token', access_token)
-        localStorage.setItem('user', JSON.stringify(user))
-
-        setName(user.name)
-        setIsLoggedIn(true)
-        setPassword('')
+        if (token) {
+          localStorage.setItem('token', token)
+          
+          // Mapeia o usuário retornado ou cria um fallback para evitar quebra do React
+          const userObj = dados?.user || (dados?.id ? dados : { email: email, name: email.split('@')[0], role: 'USER' })
+          localStorage.setItem('user', JSON.stringify(userObj))
+          
+          setName(userObj?.name || userObj?.email || 'Usuário')
+          setIsLoggedIn(true)
+          setPassword('')
+        } else {
+          alert('Resposta de autenticação inválida do servidor.')
+        }
       } else {
         await axios.post(`${API_URL}/users`, { name, email, password })
         alert('Conta criada com sucesso! Faça login para continuar.')
         setName('')
+        setEmail('')
+        setPassword('')
         setIsLogin(true)
       }
     } catch (err: any) {
@@ -189,6 +211,7 @@ function App() {
     setReservas([])
     setName('')
     setEmail('')
+    setPassword('')
   }
 
   // --- TELA DO DASHBOARD PRINCIPAL ---
@@ -236,7 +259,7 @@ function App() {
               <p>Carregando campos do banco de dados...</p>
             ) : campos.length === 0 ? (
               <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '8px', textAlign: 'center', color: '#666' }}>
-                <p>Nenhum campo encontrado no banco de dados local.</p>
+                <p>Nenhum campo encontrado no banco de dados.</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
@@ -247,7 +270,7 @@ function App() {
                       <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>🌱 Gramado: <strong>{campo.tipo_grama}</strong></p>
                       <p style={{ margin: '0 0 20px 0', color: '#28a745', fontSize: '16px', fontWeight: 'bold' }}>R$ {campo.preco_hora.toFixed(2)} / hora</p>
                       
-                      {/* Calendário e seletor das 08h às 23h */}
+                      {/* Calendário e seletor */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '15px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
                         <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#555' }}>Escolha o Dia:</label>
                         <input type="date" value={dataSelecionada} onChange={(e) => setDataSelecionada(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
@@ -281,7 +304,7 @@ function App() {
                       <strong>🏟️ {res.campo?.nome || 'Campo Excluído'}</strong>
                       <br />
                       <small style={{ color: '#666' }}>
-                        Reservado por: <strong>{res.user?.name || 'Usuário'}</strong> em {new Date(res.data_hora).toLocaleString('pt-BR')}
+                        Reservado por: <strong>{res.user?.name || res.user?.email || 'Usuário'}</strong> em {new Date(res.data_hora).toLocaleString('pt-BR')}
                       </small>
                     </div>
                     <span style={{ backgroundColor: '#e2f0d9', color: '#385723', padding: '5px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>Confirmada</span>
