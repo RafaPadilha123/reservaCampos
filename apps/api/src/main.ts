@@ -32,7 +32,16 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // Define que a rota será http://localhost:3000/api
 
-  app.enableCors();
-  await app.listen(3000);
+  // 🌟 CONFIGURAÇÃO DO CORS ATUALIZADA PARA PRODUÇÃO
+  app.enableCors({
+    origin: '*', // Permite que qualquer origem (incluindo seu front no Render) acesse a API
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
+  // Garante que o NestJS use a porta fornecida pelo Render em produção ou a 3000 localmente
+  const port = process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0'); 
+  console.log(`🚀 Aplicação rodando na porta: ${port}`);
 }
 bootstrap();
