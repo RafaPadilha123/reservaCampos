@@ -15,16 +15,16 @@ export declare class ReservasService {
     findAll(): Promise<({
         user: {
             id: number;
-            name: string;
             email: string;
+            name: string;
             password: string;
             role: string;
         };
         campo: {
+            id: number;
             nome: string;
             tipo_grama: string;
             preco_hora: number;
-            id: number;
         };
     } & {
         id: number;

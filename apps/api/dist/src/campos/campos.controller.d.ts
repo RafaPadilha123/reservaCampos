@@ -7,37 +7,37 @@ export declare class CamposController {
         tipo_grama: string;
         preco_hora: number;
     }, role: string): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
     findAll(): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }[]>;
     findOne(id: string): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
     update(id: string, updateCampoDto: {
         nome?: string;
         tipo_grama?: string;
         preco_hora?: number;
     }): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
     remove(id: string): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
 }
