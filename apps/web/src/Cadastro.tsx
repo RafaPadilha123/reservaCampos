@@ -14,7 +14,7 @@ export function Cadastro() {
     setErro('');
 
     try {
-      await axios.post('http://localhost:3000/users', {
+      await axios.post('https://reservacampos.onrender.com/users', {
         name,
         email,
         password,
