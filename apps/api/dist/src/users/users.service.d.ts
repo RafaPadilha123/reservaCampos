@@ -5,15 +5,15 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(createUserDto: CreateUserDto): Promise<{
         id: number;
-        name: string;
         email: string;
+        name: string;
         password: string;
         role: string;
     }>;
     findAll(): Promise<{
         id: number;
-        name: string;
         email: string;
+        name: string;
         role: string;
     }[]>;
 }

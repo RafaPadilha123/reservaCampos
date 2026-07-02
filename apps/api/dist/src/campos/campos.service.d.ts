@@ -7,37 +7,37 @@ export declare class CamposService {
         tipo_grama: string;
         preco_hora: number;
     }): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
     findAll(): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }[]>;
     findOne(id: number): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
     update(id: number, data: {
         nome?: string;
         tipo_grama?: string;
         preco_hora?: number;
     }): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
     remove(id: number): Promise<{
+        id: number;
         nome: string;
         tipo_grama: string;
         preco_hora: number;
-        id: number;
     }>;
 }
